@@ -1,6 +1,6 @@
 
 
-var lyrics = [];
+var lyricObjects = [];
 
 var /*bgimage,*/ searchResults1, searchResults2;
 
@@ -19,24 +19,20 @@ function setup() {
   textAlign(CENTER);
   textSize(50);
 
-  for (var i = 0; i < 100; i++) {
-    lyrics[i] = new lyrics(random(width), random(height));
-  }
 }
 
 function draw() {
    //image(bgimage, 0, 0, window.innerWidth, window.innerHeight);
   //image(bgimage, 0, 0, window.innerWidth, window.innerHeight);
  // if there is anything in the global lyrics variable
- for (var i = 0; i < lyrics.length; i++) {
-    lyrics[i].run(lyrics);
+ background(255);
+ if (lyricObjects.length > 0) {
+  for (var i = 0; i < lyricObjects.length; i++) {
+    lyricObjects[i].run();
   }
-  if (lyrics) {
-    fill(0);
-    textSize(18);
-    text(lyrics, 0, 0);
+ }
+ 
 
-  } 
   if (searchResults1) {
     fill(0);
     textSize(32);
@@ -51,44 +47,53 @@ function draw() {
   }  
 }
 
-function lyrics(x, y) {
+function loadLyricsOnce() {
+
+  for (var i = 0; i < lyrics.length; i++) {
+    lyricObjects[i] = new Lyric(random(width), random(height));
+  }
+
+}
+
+function Lyric(x, y) {
   this.acceleration = createVector(0, 0);
   this.velocity = p5.Vector.random2D();
   this.position = createVector(x, y);
   this.r = 3.0;
   this.maxspeed = 3;    // Maximum speed
   this.maxforce = 0.05; // Maximum steering force
+  //this.text = _text;
 }
 
-lyrics.prototype.run = function(lyrics) {
-  this.flock(lyrics);
+Lyric.prototype.run = function() {
+ // this.flock(lyrics);
   this.update();
   this.borders();
   this.render();
 };
 
 // Forces go into acceleration
-lyrics.prototype.applyForce = function(force) {
+Lyric.prototype.applyForce = function(force) {
   this.acceleration.add(force);
 };
 
-// We accumulate a new acceleration each time based on three rules
-Boid.prototype.flock = function(lyrics) {
-  var sep = this.separate(lyrics); // Separation
-  var ali = this.align(lyrics);    // Alignment
-  var coh = this.cohesion(lyrics); // Cohesion
-  // Arbitrarily weight these forces
-  sep.mult(2.5);
-  ali.mult(1.0);
-  coh.mult(1.0);
-  // Add the force vectors to acceleration
-  this.applyForce(sep);
-  this.applyForce(ali);
-  this.applyForce(coh);
-};
+// // We accumulate a new acceleration each time based on three rules
+// Lyric.prototype.flock = function(lyrics) {
+//   var sep = this.separate(lyrics); // Separation
+//   var ali = this.align(lyrics);    // Alignment
+//   var coh = this.cohesion(lyrics); // Cohesion
+//   // Arbitrarily weight these forces
+//   sep.mult(2.5);
+//   ali.mult(1.0);
+//   coh.mult(1.0);
+//   // Add the force vectors to acceleration
+//   this.applyForce(sep);
+//   this.applyForce(ali);
+//   this.applyForce(coh);
+// };
 
 // Method to update location
-lyrics.prototype.update = function() {
+Lyric.prototype.update = function() {
   // Update velocity
   this.velocity.add(this.acceleration);
   // Limit speed
@@ -100,7 +105,7 @@ lyrics.prototype.update = function() {
 
 // A method that calculates and applies a steering force towards a target
 // STEER = DESIRED MINUS VELOCITY
-lyrics.prototype.seek = function(target) {
+Lyric.prototype.seek = function(target) {
   var desired = p5.Vector.sub(target, this.position); // A vector pointing from the location to the target
   // Normalize desired and scale to maximum speed
   desired.normalize();
@@ -112,14 +117,15 @@ lyrics.prototype.seek = function(target) {
 };
 
 // Draw boid as a circle--lyrics
-lyrics.prototype.render = function() {
+Lyric.prototype.render = function() {
   fill(127, 127);
   stroke(200);
-  //ellipse(this.position.x, this.position.y, 16, 16);
+ // text(this.text, this.position.x, this.position.y);
+  ellipse(this.position.x, this.position.y, 16, 16);
 };
 
 // Wraparound
-lyrics.prototype.borders = function() {
+Lyric.prototype.borders = function() {
   if (this.position.x < -this.r) this.position.x = width + this.r;
   if (this.position.y < -this.r) this.position.y = height + this.r;
   if (this.position.x > width + this.r) this.position.x = -this.r;
@@ -128,7 +134,7 @@ lyrics.prototype.borders = function() {
 
 // Separation
 // Method checks for nearby boids and steers away
-lyrics.prototype.separate = function(lyrics) {
+Lyric.prototype.separate = function(lyrics) {
   var desiredseparation = 25.0;
   var steer = createVector(0, 0);
   var count = 0;
@@ -163,7 +169,7 @@ lyrics.prototype.separate = function(lyrics) {
 
 // Alignment
 // For every nearby boid in the system, calculate the average velocity
-lyrics.prototype.align = function(lyrics) {
+Lyric.prototype.align = function(lyrics) {
   var neighbordist = 50;
   var sum = createVector(0, 0);
   var count = 0;
@@ -188,7 +194,7 @@ lyrics.prototype.align = function(lyrics) {
 
 // Cohesion
 // For the average location (i.e. center) of all nearby boids, calculate steering vector towards that location
-lyrics.prototype.cohesion = function(lyrics) {
+Lyric.prototype.cohesion = function(lyrics) {
   var neighbordist = 50;
   var sum = createVector(0, 0); // Start with empty vector to accumulate all locations
   var count = 0;

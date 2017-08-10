@@ -1,3 +1,5 @@
+var lyrics
+
 var app = {
     //Define the url for the wikipedia API call
    //currentWord: "salad",
@@ -77,11 +79,26 @@ var app = {
           console.log("It worked!");
           $('#everythingElse').hide();
           $('#myCanvas').show();
-        lyrics= data.message.body.lyrics.lyrics_body; 
+        var tempLyrics= data.message.body.lyrics.lyrics_body; 
 
-        var str = lyrics;
-        var words = str.split(" ");
-            console.log(words);
+        var str = tempLyrics;
+
+        lyrics = str.split(" ");
+        lyrics = _.filter(lyrics, function(lyric) {
+          lyric = lyric.replace(/ ^[a-zA-Z]*$/, '');
+          
+          if (!lyric.includes('undefined')  && lyric !== 'and' && !lyric.includes('*') && lyric !== undefined) {
+            return lyric;
+          }
+        });
+
+
+        loadLyricsOnce();
+
+        for(var i = 0; i < lyrics.length; i++) {
+          console.log(lyrics[i]);
+        }
+
 
         //lyrics.replace(/^[a-zA-Z\ ]/);
 
